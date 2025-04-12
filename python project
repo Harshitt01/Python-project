@@ -1,0 +1,176 @@
+# Import necessary libraries
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Set plot style
+sns.set(style="whitegrid")
+plt.rcParams["figure.figsize"] = (10, 6)
+
+# Load the dataset
+df = pd.read_csv(r"C:\Users\hp\Downloads\world_happiness_report 2.csv")
+
+# Display basic info
+print("Dataset Info:")
+print(df.info())
+
+# Display the first few rows
+print("\nFirst 5 Rows:")
+print(df.head())
+
+# Check for missing values
+print("\nMissing Values:")
+print(df.isnull().sum())
+
+# Descriptive statistics
+print("\nDescriptive Statistics:")
+print(df.describe())
+
+# --- Correlation matrix ---
+corr = df.corr(numeric_only=True)
+
+print("\nCorrelation Matrix:")
+print(corr)
+
+plt.figure(figsize=(12, 8))
+sns.heatmap(corr, annot=True, cmap='coolwarm', linewidths=0.5)
+plt.title("Correlation Heatmap")
+plt.show()
+
+# --- Distribution of Happiness Score ---
+sns.histplot(df['Happiness_Score'], bins=20, kde=True)
+plt.title("Distribution of Happiness Score")
+plt.xlabel("Happiness_Score")
+plt.ylabel("Frequency")
+plt.show()
+
+
+
+# Set the plot style
+sns.set(style="whitegrid")
+plt.figure(figsize=(10, 6))
+
+# Create scatter plot
+sns.scatterplot(data=df, x='GDP_per_Capita', y='Happiness_Score', hue='Year', palette='viridis')
+
+# Add labels and title
+plt.title("Scatter Plot: GDP per Capita vs Happiness Score")
+plt.xlabel("GDP per Capita")
+plt.ylabel("Happiness Score")
+plt.legend(title="Year", bbox_to_anchor=(1.05, 1), loc='upper left')
+plt.grid(True)
+plt.tight_layout()
+
+# Show the plot
+plt.show()
+
+
+
+#Line Plot: Happiness Score for Top 20 Countries ---
+top20 = df.sort_values(by='Happiness_Score', ascending=False).head(20)
+sns.lineplot(data=top20, x='Country', y='Happiness_Score', marker='o')
+plt.title("Happiness Score for Top 20 Countries")
+plt.xlabel("Country")
+plt.ylabel("Happiness_Score")
+plt.xticks(rotation=45, ha='right')
+plt.tight_layout()
+plt.show()
+
+
+# --- Pairplot of key factors ---
+selected_cols = ['Happiness_Score', 'GDP_per_Capita', 'Education_Index', 'Healthy_Life_Expectancy', 'Freedom']
+sns.pairplot(df[selected_cols], diag_kind='kde')
+plt.suptitle("Pairwise Relationships of Key Factors", y=1.02)
+plt.show()
+
+
+# Set the plot style
+sns.set(style="whitegrid")
+plt.figure(figsize=(10, 6))
+
+# Create a box plot without specifying a palette
+sns.boxplot(data=df, x='Year', y='Happiness_Score')
+
+# Add title and labels
+plt.title("Box Plot: Happiness Score by Year")
+plt.xlabel("Year")
+plt.ylabel("Happiness Score")
+plt.grid(True)
+plt.tight_layout()
+
+# Show the plot
+plt.show()
+
+# Set the plot style
+sns.set(style="whitegrid")
+plt.figure(figsize=(10, 6))
+
+# Create a box plot without specifying a palette
+sns.boxplot(data=df, x='Year', y='Happiness_Score')
+
+# Add title and labels
+plt.title("Box Plot: Happiness Score by Year")
+plt.xlabel("Year")
+plt.ylabel("Happiness_Score")
+plt.grid(True)
+plt.tight_layout()
+
+# Show the plot
+plt.show()
+
+
+sns.set(style="whitegrid")
+plt.figure(figsize=(10, 6))
+
+# Create the histogram
+plt.hist(df['Happiness_Score'], bins=20, edgecolor='black')
+
+# Add labels and title
+plt.title("Histogram: Happiness Score Distribution")
+plt.xlabel("Happiness_Score")
+plt.ylabel("Frequency")
+plt.grid(True)
+plt.tight_layout()
+
+# Show the plot
+plt.show()
+
+
+
+numeric_cols = df.select_dtypes(include='number')
+
+# Function to find outliers using IQR
+def detect_outliers_iqr(data):
+    outlier_indices = {}
+    for col in data.columns:
+        Q1 = data[col].quantile(0.25)
+        Q3 = data[col].quantile(0.75)
+        IQR = Q3 - Q1
+        lower_bound = Q1 - 1.5 * IQR
+        upper_bound = Q3 + 1.5 * IQR
+
+        # Get indices of outliers
+        outliers = data[(data[col] < lower_bound) | (data[col] > upper_bound)].index
+        outlier_indices[col] = outliers.tolist()
+    
+    return outlier_indices
+
+# Detect outliers
+outliers_dict = detect_outliers_iqr(numeric_cols)
+
+# Print outliers
+for col, outlier_rows in outliers_dict.items():
+    print(f"\nOutliers in '{col}':")
+    print(df.loc[outlier_rows, ['Country', 'Year', col]])
+
+
+# Select only numeric columns
+numeric_cols = df.select_dtypes(include='number')
+
+# Calculate skewness
+skewness_values = numeric_cols.skew()
+
+# Display skewness for each column
+print("Skewness of Numerical Features:\n")
+print(skewness_values)
